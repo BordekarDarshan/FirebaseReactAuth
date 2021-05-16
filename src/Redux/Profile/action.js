@@ -2,6 +2,8 @@ import { db } from "../../Firebase/Firebase";
 export const profileActions = {
   FETCH_PROFILE_SUCCESS: "FETCH_PROFILE_SUCCESS",
   FETCH_PROFILE_ERROR: "FETCH_PROFILE_ERROR",
+  UPDATE_PROFILE_SUCCESS: "UPDATE_PROFILE_SUCCESS",
+  UPDATE_PROFILE_ERROR: "UPDATE_PROFILE_ERROR",
 };
 
 export function profileSuccess(props) {
@@ -34,5 +36,38 @@ export function profileThunk(props) {
         }
       })
       .catch((error) => dispatch(profileError(error)));
+  };
+}
+
+// Update user information.
+
+export function updateProfileSuccess(props) {
+  return (dispatch) => {
+    dispatch({
+      type: profileActions.UPDATE_PROFILE_SUCCESS,
+      payload: props,
+    });
+  };
+}
+
+export function updateProfileError(error) {
+  return {
+    type: profileActions.UPDATE_PROFILE_ERROR,
+    payload: error,
+  };
+}
+
+export function updateProfileThunk(props) {
+  return async (dispatch) => {
+    await db
+      .collection("users")
+      .doc(props.user)
+      .update({
+        ...props.signUpdata,
+      })
+      .then(() => {
+        dispatch(updateProfileSuccess("Data updated successfully"));
+      })
+      .catch((error) => dispatch(updateProfileError(error)));
   };
 }

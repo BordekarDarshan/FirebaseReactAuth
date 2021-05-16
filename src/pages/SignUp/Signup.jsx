@@ -12,7 +12,7 @@ import {
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { signUpThunk } from "../../Redux/SignUp/action";
-import { profileThunk } from "../../Redux/Profile/action";
+import { profileThunk, updateProfileThunk } from "../../Redux/Profile/action";
 
 export class Signup extends Component {
   state = {
@@ -42,35 +42,43 @@ export class Signup extends Component {
               phone: profileData.phone,
               address: profileData.address,
             };
-            this.setState(
-              {
-                initialState: data,
-              },
-              () => {
-                console.log(this.state.initialState);
-              }
-            );
+            this.setState({
+              initialState: data,
+            });
           }
         });
     }
   }
 
-  handleSubmitHandler = (values) => {
-    this.props
-      .signUpThunk({
+  handleSubmitHandler = (values, resetForm, type) => {
+    if (type === "add") {
+      this.props
+        .signUpThunk({
+          signUpdata: {
+            firstName: values.firstName,
+            lastName: values.lastName,
+            age: values.age,
+            email: values.email,
+            phone: values.phone,
+            address: values.address,
+            password: values.password,
+          },
+        })
+        .then(() => {
+          this.props.history.push("/login");
+        });
+    } else {
+      this.props.updateProfileThunk({
+        user: this.props?.user && this.props.user,
         signUpdata: {
           firstName: values.firstName,
           lastName: values.lastName,
           age: values.age,
-          email: values.email,
           phone: values.phone,
           address: values.address,
-          password: values.password,
         },
-      })
-      .then(() => {
-        this.props.history.push("/login");
       });
+    }
   };
   render() {
     return (
@@ -84,14 +92,21 @@ export class Signup extends Component {
               lastName: Yup.string().required("Please provide lastname"),
               age: Yup.number().required("Please provide age"),
               email: Yup.string().required("Please provide email"),
-              password: Yup.string()
-                .required("No password provided")
-                .min(8, "Password must be 8 characters long"),
+              password:
+                this.props.profile === "/profile"
+                  ? Yup.string()
+                  : Yup.string()
+                      .required("No password provided")
+                      .min(8, "Password must be 8 characters long"),
               address: Yup.string().required("Please provide address"),
               phone: Yup.number().required("Please provide number"),
             })}
             onSubmit={(values, { resetForm }) => {
-              this.handleSubmitHandler(values, resetForm);
+              if (this.props.profile === "/profile") {
+                this.handleSubmitHandler(values, resetForm, "update");
+              } else {
+                this.handleSubmitHandler(values, resetForm, "add");
+              }
             }}
           >
             {({ errors, handleSubmit, values, handleChange }) => (
@@ -231,5 +246,7 @@ let mapStateToProps = (state) => ({
 });
 
 export default withRouter(
-  connect(mapStateToProps, { signUpThunk, profileThunk })(Signup)
+  connect(mapStateToProps, { signUpThunk, profileThunk, updateProfileThunk })(
+    Signup
+  )
 );
