@@ -17,6 +17,7 @@ export class Signup extends Component {
       firstName: "",
       lastName: "",
       age: "",
+      email: "",
       phone: "",
       address: "",
       password: "",
@@ -36,11 +37,12 @@ export class Signup extends Component {
               firstName: Yup.string().required("Please provide firstName"),
               lastName: Yup.string().required("Please provide lastname"),
               age: Yup.number().required("Please provide age"),
-              phone: Yup.number().required("Please provide phone number"),
+              email: Yup.string().required("Please provide email"),
               password: Yup.string()
                 .required("No password provided")
                 .min(8, "Password must be 8 characters long"),
               address: Yup.string().required("Please provide address"),
+              phone: Yup.number().required("Please provide number"),
             })}
             onSubmit={(values, { resetForm }) => {
               this.handleSubmitHandler(values, resetForm);
@@ -79,7 +81,6 @@ export class Signup extends Component {
                     error={errors.lastName}
                   />
                 </FirstRow>
-
                 <FirstRow>
                   <Field
                     id="outlined-basic"
@@ -98,20 +99,35 @@ export class Signup extends Component {
 
                   <Field
                     id="outlined-basic"
-                    name="phone"
+                    name="email"
                     variant="outlined"
-                    label="Phone"
-                    value={values.phone}
+                    label="Email"
+                    value={values.email}
                     onChange={handleChange}
                     style={{
                       width: "50%",
                       margin: "0 0 1rem 0",
                       boxSizing: "border-box",
                     }}
-                    error={errors.phone}
+                    error={errors.email}
                   />
                 </FirstRow>
 
+                <Field
+                  id="outlined-textarea"
+                  label="Phone"
+                  multiline
+                  variant="outlined"
+                  name="phone"
+                  value={values.phone}
+                  onChange={handleChange}
+                  style={{
+                    width: "100%",
+                    boxSizing: "border-box",
+                    margin: "1rem 0",
+                  }}
+                  error={errors.phone}
+                />
                 <Field
                   id="outlined-textarea"
                   label="Address"
@@ -127,7 +143,6 @@ export class Signup extends Component {
                   }}
                   error={errors.address}
                 />
-
                 <Field
                   id="outlined-basic"
                   name="password"
@@ -142,7 +157,6 @@ export class Signup extends Component {
                   }}
                   error={errors.password}
                 />
-
                 <SubmitWrapper>
                   {this.props.profile === "/profile" ? (
                     <Button type="submit" variant="contained" color="primary">
