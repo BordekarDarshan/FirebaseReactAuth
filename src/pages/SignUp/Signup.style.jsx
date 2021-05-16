@@ -26,4 +26,13 @@ export const Field = styled(TextField)``;
 
 export const SubmitWrapper = styled.div`
   display: flex;
+  align-items: center;
+  > span {
+    margin: 0 0 0 10px;
+    > span {
+      color: #1a73e8;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  }
 `;

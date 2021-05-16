@@ -9,7 +9,7 @@ import {
   SubmitWrapper,
   Wrapper,
 } from "./Signup.style";
-import { withRouter } from "react-router";
+import { Redirect, withRouter } from "react-router";
 import { connect } from "react-redux";
 import { signUpThunk } from "../../Redux/SignUp/action";
 import { profileThunk, updateProfileThunk } from "../../Redux/Profile/action";
@@ -238,14 +238,24 @@ export class Signup extends Component {
                         variant="contained"
                         color="primary"
                         onClick={() => this.logoutHandler()}
+                        style={{ margin: "0 0 0 10px" }}
                       >
                         LOGOUT
                       </Button>
                     </>
                   ) : (
-                    <Button type="submit" variant="contained" color="primary">
-                      SIGN UP
-                    </Button>
+                    <>
+                      <Button type="submit" variant="contained" color="primary">
+                        SIGN UP
+                      </Button>
+
+                      <span>
+                        Already have an account?{" "}
+                        <span onClick={() => this.props.history.push("/login")}>
+                          Log In
+                        </span>
+                      </span>
+                    </>
                   )}
                 </SubmitWrapper>
               </form>

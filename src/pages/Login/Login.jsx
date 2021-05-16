@@ -77,6 +77,12 @@ export class Login extends Component {
                   <Button type="submit" variant="contained" color="primary">
                     SIGN IN
                   </Button>
+                  <span>
+                    Create new account?{" "}
+                    <span onClick={() => this.props.history.push("/")}>
+                      Sign Up
+                    </span>
+                  </span>
                 </SubmitWrapper>
               </form>
             )}
