@@ -28,15 +28,13 @@ export function signUpThunk(props) {
     );
     console.log(response);
     if (response) {
-      let success = db.collection("users").doc(auth.currentUser.uid).set({
-        id: auth.currentUser.uid,
-        firstName,
-        lastName,
-        email,
-        phone,
-        age,
-        address,
-      });
+      let success = db
+        .collection("users")
+        .doc(auth.currentUser.uid)
+        .set({
+          id: auth.currentUser.uid,
+          ...props.signUpdata,
+        });
       if (success) {
         dispatch(signUpSuccess(success));
       } else {
