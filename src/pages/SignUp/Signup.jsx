@@ -12,6 +12,7 @@ import {
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { signUpThunk } from "../../Redux/SignUp/action";
+import { profileThunk } from "../../Redux/Profile/action";
 
 export class Signup extends Component {
   state = {
@@ -25,6 +26,34 @@ export class Signup extends Component {
       password: "",
     },
   };
+  componentDidMount() {
+    if (this.props.profile === "/profile") {
+      this.props
+        .profileThunk({ user: this.props?.user && this.props.user })
+        .then(() => {
+          if (this.props.profileData) {
+            let { profileData } = this.props;
+
+            let data = {
+              firstName: profileData.firstName,
+              lastName: profileData.lastName,
+              age: profileData.age,
+              email: profileData.email,
+              phone: profileData.phone,
+              address: profileData.address,
+            };
+            this.setState(
+              {
+                initialState: data,
+              },
+              () => {
+                console.log(this.state.initialState);
+              }
+            );
+          }
+        });
+    }
+  }
 
   handleSubmitHandler = (values) => {
     this.props
@@ -48,6 +77,7 @@ export class Signup extends Component {
       <Wrapper>
         <Container>
           <Formik
+            enableReinitialize
             initialValues={this.state.initialState}
             validationSchema={Yup.object().shape({
               firstName: Yup.string().required("Please provide firstName"),
@@ -119,6 +149,7 @@ export class Signup extends Component {
                     variant="outlined"
                     label="Email"
                     value={values.email}
+                    disabled={this.props.profile === "/profile" ? true : false}
                     onChange={handleChange}
                     style={{
                       width: "50%",
@@ -128,7 +159,6 @@ export class Signup extends Component {
                     error={errors.email}
                   />
                 </FirstRow>
-
                 <Field
                   id="outlined-textarea"
                   label="Phone"
@@ -159,20 +189,23 @@ export class Signup extends Component {
                   }}
                   error={errors.address}
                 />
-                <Field
-                  id="outlined-basic"
-                  name="password"
-                  variant="outlined"
-                  label="password"
-                  value={values.password}
-                  onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    boxSizing: "border-box",
-                    margin: "1rem 0",
-                  }}
-                  error={errors.password}
-                />
+                {this.props.profile !== "/profile" && (
+                  <Field
+                    id="outlined-basic"
+                    name="password"
+                    variant="outlined"
+                    label="password"
+                    value={values.password}
+                    onChange={handleChange}
+                    style={{
+                      width: "100%",
+                      boxSizing: "border-box",
+                      margin: "1rem 0",
+                    }}
+                    error={errors.password}
+                  />
+                )}
+
                 <SubmitWrapper>
                   {this.props.profile === "/profile" ? (
                     <Button type="submit" variant="contained" color="primary">
@@ -193,7 +226,10 @@ export class Signup extends Component {
   }
 }
 let mapStateToProps = (state) => ({
-  state: state,
+  user: state.login.loginSuccess?.user?.uid,
+  profileData: state.profile.profileSuccess,
 });
 
-export default withRouter(connect(mapStateToProps, { signUpThunk })(Signup));
+export default withRouter(
+  connect(mapStateToProps, { signUpThunk, profileThunk })(Signup)
+);
