@@ -10,6 +10,8 @@ import {
   Wrapper,
 } from "./Signup.style";
 import { withRouter } from "react-router";
+import { connect } from "react-redux";
+import { signUpThunk } from "../../Redux/SignUp/action";
 
 export class Signup extends Component {
   state = {
@@ -24,8 +26,22 @@ export class Signup extends Component {
     },
   };
 
-  handleSubmitHandler = () => {
-    this.props.history.push("/login");
+  handleSubmitHandler = (values) => {
+    this.props
+      .signUpThunk({
+        signUpdata: {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          age: values.age,
+          email: values.email,
+          phone: values.phone,
+          address: values.address,
+          password: values.password,
+        },
+      })
+      .then(() => {
+        this.props.history.push("/login");
+      });
   };
   render() {
     return (
@@ -176,5 +192,8 @@ export class Signup extends Component {
     );
   }
 }
+let mapStateToProps = (state) => ({
+  state: state,
+});
 
-export default withRouter(Signup);
+export default withRouter(connect(mapStateToProps, { signUpThunk })(Signup));

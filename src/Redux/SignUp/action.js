@@ -22,24 +22,27 @@ export function signUpError(error) {
 
 export function signUpThunk(props) {
   return async (dispatch) => {
-    let response = auth.createUserWithEmailAndPassword(
-      props.email,
-      props.password
-    );
-    console.log(response);
-    if (response) {
-      let success = db
-        .collection("users")
-        .doc(auth.currentUser.uid)
-        .set({
-          id: auth.currentUser.uid,
-          ...props.signUpdata,
-        });
-      if (success) {
-        dispatch(signUpSuccess(success));
-      } else {
-        dispatch(signUpError("Sign Up Failed"));
-      }
-    }
+    await auth
+      .createUserWithEmailAndPassword(
+        props.signUpdata.email,
+        props.signUpdata.password
+      )
+      .then((data) => {
+        db.collection("users")
+          .doc(auth.currentUser.uid)
+          .set({
+            id: auth.currentUser.uid,
+            ...props.signUpdata,
+          })
+          .then(() => {
+            dispatch(signUpSuccess(data));
+          })
+          .catch((error) => {
+            dispatch(signUpError(error));
+          });
+      })
+      .catch((error) => {
+        dispatch(signUpError(error));
+      });
   };
 }

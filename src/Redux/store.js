@@ -8,15 +8,16 @@ import logger from "redux-logger";
 
 export const persistConfig = {
   key: "user",
-  storage,
-  whitelist: ["login"],
+  storage: storage,
+  whitelist: ["login", "signUp"],
 };
-const middlewares = [thunk, logger];
+
 const rootReducer = combineReducers({
   login: loginReducer,
   signUp: signUpReducer,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
+const middlewares = [logger, thunk];
 export const reduxStore = createStore(
   persistedReducer,
   applyMiddleware(...middlewares)
