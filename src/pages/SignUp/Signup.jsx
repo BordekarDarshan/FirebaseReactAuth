@@ -9,7 +9,7 @@ import {
   SubmitWrapper,
   Wrapper,
 } from "./Signup.style";
-import { Redirect, withRouter } from "react-router";
+import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { signUpThunk } from "../../Redux/SignUp/action";
 import { profileThunk, updateProfileThunk } from "../../Redux/Profile/action";
@@ -66,7 +66,9 @@ export class Signup extends Component {
           },
         })
         .then(() => {
-          this.props.history.push("/login");
+          if (this.props.signUpData) {
+            this.props.history.push("/login");
+          }
         });
     } else {
       this.props.updateProfileThunk({
@@ -126,12 +128,10 @@ export class Signup extends Component {
                     name="firstName"
                     value={values.firstName}
                     onChange={handleChange}
+                    error={errors.firstName}
                     style={{
-                      width: "50%",
-                      boxSizing: "border-box",
                       margin: "0 0 1rem 0",
                     }}
-                    error={errors.firstName}
                   />
 
                   <Field
@@ -141,12 +141,10 @@ export class Signup extends Component {
                     label="Last name"
                     value={values.lastName}
                     onChange={handleChange}
-                    style={{
-                      width: "50%",
-                      margin: "0 0 1rem 0",
-                      boxSizing: "border-box",
-                    }}
                     error={errors.lastName}
+                    style={{
+                      margin: "0 0 1rem 0",
+                    }}
                   />
                 </FirstRow>
                 <FirstRow>
@@ -158,8 +156,6 @@ export class Signup extends Component {
                     value={values.age}
                     onChange={handleChange}
                     style={{
-                      width: "50%",
-                      boxSizing: "border-box",
                       margin: "0 0 1rem 0",
                     }}
                     error={errors.age}
@@ -174,9 +170,7 @@ export class Signup extends Component {
                     disabled={this.props.profile === "/profile" ? true : false}
                     onChange={handleChange}
                     style={{
-                      width: "50%",
                       margin: "0 0 1rem 0",
-                      boxSizing: "border-box",
                     }}
                     error={errors.email}
                   />
@@ -270,6 +264,7 @@ let mapStateToProps = (state) => ({
   user: state.login.loginSuccess?.user?.uid,
   profileData: state.profile.profileSuccess,
   isUserLoggedIn: state.login.isUserLoggedIn,
+  signUpData: state.signUp.signUpSuccess,
 });
 
 export default withRouter(

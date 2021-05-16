@@ -12,11 +12,17 @@ export const Wrapper = styled.div`
 export const Container = styled.div`
   width: 50%;
   margin: 0 auto;
+  @media (max-width: 967px) {
+    width: 80%;
+  }
 `;
 
 export const FirstRow = styled.div`
   display: flex;
   column-gap: 25px;
+  > div {
+    flex: auto !important;
+  }
   @media screen and (max-width: 468px) {
     flex-flow: column;
   }
@@ -33,6 +39,12 @@ export const SubmitWrapper = styled.div`
       color: #1a73e8;
       font-weight: 600;
       cursor: pointer;
+    }
+  }
+  @media (max-width: 967px) {
+    flex-flow: column;
+    > span {
+      margin: 1rem 0 0 0;
     }
   }
 `;
