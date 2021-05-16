@@ -5,16 +5,25 @@ import { Button } from "@material-ui/core";
 import { Field, Wrapper, SubmitWrapper } from "../SignUp/Signup.style";
 import { Container } from "./Login.style";
 import { withRouter } from "react-router";
+import { loginThunk } from "../../Redux/Login/action";
+import { connect } from "react-redux";
 
 export class Login extends Component {
   state = {
     initialState: {
-      phone: "",
+      email: "",
       password: "",
     },
   };
-  handleSubmitHandler = () => {
-    this.props.history.push("/profile");
+  handleSubmitHandler = (values) => {
+    this.props
+      .loginThunk({
+        email: values.email,
+        password: values.password,
+      })
+      .then(() => {
+        this.props.history.push("/profile");
+      });
   };
   render() {
     return (
@@ -23,7 +32,7 @@ export class Login extends Component {
           <Formik
             initialValues={this.state.initialState}
             validationSchema={Yup.object().shape({
-              phone: Yup.number().required("Please provide phone number"),
+              email: Yup.string().required("Please provide email number"),
               password: Yup.string()
                 .required("No password provided")
                 .min(8, "Password must be 8 characters long"),
@@ -36,17 +45,17 @@ export class Login extends Component {
               <form noValidate onSubmit={handleSubmit} autoComplete="off">
                 <Field
                   id="outlined-basic"
-                  name="phone"
+                  name="email"
                   variant="outlined"
-                  label="Phone"
-                  value={values.phone}
+                  label="email"
+                  value={values.email}
                   onChange={handleChange}
                   style={{
                     width: "100%",
                     margin: "0 0 1rem 0",
                     boxSizing: "border-box",
                   }}
-                  error={errors.phone}
+                  error={errors.email}
                 />
 
                 <Field
@@ -77,5 +86,8 @@ export class Login extends Component {
     );
   }
 }
+let mapStateToProps = (state) => ({
+  state: state,
+});
 
-export default withRouter(Login);
+export default withRouter(connect(mapStateToProps, { loginThunk })(Login));

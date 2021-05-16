@@ -22,14 +22,13 @@ export function loginError(error) {
 
 export function loginThunk(props) {
   return async (dispatch) => {
-    let response = await auth.signInWithEmailAndPassword(
-      props.email,
-      props.password
-    );
-    if (auth.currentUser) {
-      dispatch(loginSuccess(response));
-    } else {
-      dispatch(loginError("Login Failed"));
-    }
+    await auth
+      .signInWithEmailAndPassword(props.email, props.password)
+      .then((data) => {
+        if (auth.currentUser) {
+          dispatch(loginSuccess(data));
+        }
+      })
+      .catch((error) => dispatch(loginError(error)));
   };
 }
