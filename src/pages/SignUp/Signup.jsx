@@ -13,6 +13,7 @@ import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { signUpThunk } from "../../Redux/SignUp/action";
 import { profileThunk, updateProfileThunk } from "../../Redux/Profile/action";
+import { userLogoutThunk } from "../../Redux/Login/action";
 
 export class Signup extends Component {
   state = {
@@ -79,6 +80,12 @@ export class Signup extends Component {
         },
       });
     }
+  };
+
+  logoutHandler = () => {
+    this.props.userLogoutThunk().then(() => {
+      this.props.history.push("/login");
+    });
   };
   render() {
     return (
@@ -223,9 +230,18 @@ export class Signup extends Component {
 
                 <SubmitWrapper>
                   {this.props.profile === "/profile" ? (
-                    <Button type="submit" variant="contained" color="primary">
-                      SAVE
-                    </Button>
+                    <>
+                      <Button type="submit" variant="contained" color="primary">
+                        SAVE
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.logoutHandler()}
+                      >
+                        LOGOUT
+                      </Button>
+                    </>
                   ) : (
                     <Button type="submit" variant="contained" color="primary">
                       SIGN UP
@@ -243,10 +259,14 @@ export class Signup extends Component {
 let mapStateToProps = (state) => ({
   user: state.login.loginSuccess?.user?.uid,
   profileData: state.profile.profileSuccess,
+  isUserLoggedIn: state.login.isUserLoggedIn,
 });
 
 export default withRouter(
-  connect(mapStateToProps, { signUpThunk, profileThunk, updateProfileThunk })(
-    Signup
-  )
+  connect(mapStateToProps, {
+    userLogoutThunk,
+    signUpThunk,
+    profileThunk,
+    updateProfileThunk,
+  })(Signup)
 );

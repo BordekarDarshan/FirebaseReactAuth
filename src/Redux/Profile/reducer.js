@@ -1,3 +1,4 @@
+import { loginActions } from "../Login/action";
 import { profileActions } from "./action";
 
 let initial_state = {
@@ -11,27 +12,31 @@ export const profileReducer = (state = initial_state, action) => {
   switch (action.type) {
     case profileActions.FETCH_PROFILE_SUCCESS:
       return {
-        ...initial_state,
+        ...state,
         profileSuccess: action.payload,
         profileError: null,
       };
     case profileActions.FETCH_PROFILE_ERROR:
       return {
-        ...initial_state,
+        ...state,
         profileSuccess: null,
         profileError: action.payload,
       };
     case profileActions.UPDATE_PROFILE_SUCCESS:
       return {
-        ...initial_state,
+        ...state,
         updateProfileSuccess: action.payload,
         updateProfileError: null,
       };
     case profileActions.UPDATE_PROFILE_ERROR:
       return {
-        ...initial_state,
+        ...state,
         updateProfileSuccess: null,
         updateProfileError: action.payload,
+      };
+    case loginActions.USER_LOGOUT:
+      return {
+        ...initial_state,
       };
     default:
       return state;

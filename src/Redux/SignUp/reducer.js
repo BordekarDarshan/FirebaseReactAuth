@@ -1,3 +1,4 @@
+import { loginActions } from "../Login/action";
 import { signUpActions } from "./action";
 
 let initial_state = {
@@ -16,6 +17,10 @@ export const signUpReducer = (state = initial_state, action) => {
       return {
         signUpSuccess: null,
         signUpError: action.payload,
+      };
+    case loginActions.USER_LOGOUT:
+      return {
+        ...initial_state,
       };
     default:
       return state;
