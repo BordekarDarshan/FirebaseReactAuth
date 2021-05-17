@@ -21,28 +21,31 @@ export function signUpError(error) {
 }
 
 export function signUpThunk(props) {
-  return async (dispatch) => {
-    await auth
-      .createUserWithEmailAndPassword(
-        props.signUpdata.email,
-        props.signUpdata.password
-      )
-      .then((data) => {
-        db.collection("users")
-          .doc(auth.currentUser.uid)
-          .set({
-            id: auth.currentUser.uid,
-            ...props.signUpdata,
-          })
-          .then(() => {
-            dispatch(signUpSuccess(data));
-          })
-          .catch((error) => {
-            dispatch(signUpError(error));
-          });
-      })
-      .catch((error) => {
-        dispatch(signUpError(error));
-      });
+  return (dispatch) => {
+    return new Promise((resolve, reject) => {
+      auth
+        .createUserWithEmailAndPassword(
+          props.signUpdata.email,
+          props.signUpdata.password
+        )
+        .then((data) => {
+          db.collection("users")
+            .doc(auth.currentUser.uid)
+            .set({
+              id: auth.currentUser.uid,
+              ...props.signUpdata,
+            })
+            .then(() => {
+              dispatch(signUpSuccess(data));
+              resolve(data);
+            })
+            .catch((error) => {
+              dispatch(signUpError(error));
+            });
+        })
+        .catch((error) => {
+          dispatch(signUpError(error));
+        });
+    });
   };
 }
