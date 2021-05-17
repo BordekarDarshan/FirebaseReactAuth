@@ -8,8 +8,20 @@ function App(props) {
   return (
     <div className="App">
       <Switch>
-        <Route path="/" exact component={Signup}></Route>
-        <Route path="/login" exact component={Login}></Route>
+        <Route
+          path="/"
+          exact
+          render={() =>
+            !props.isUserLoggedIn ? <Signup /> : <Redirect to="/profile" />
+          }
+        ></Route>
+        <Route
+          path="/login"
+          exact
+          render={() =>
+            !props.isUserLoggedIn ? <Login /> : <Redirect to="/profile" />
+          }
+        ></Route>
         <Route
           path="/profile"
           exact

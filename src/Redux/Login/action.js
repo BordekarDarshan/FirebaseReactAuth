@@ -23,15 +23,21 @@ export function loginError(error) {
 }
 
 export function loginThunk(props) {
-  return async (dispatch) => {
-    await auth
-      .signInWithEmailAndPassword(props.email, props.password)
-      .then((data) => {
-        if (auth.currentUser) {
-          dispatch(loginSuccess(data));
-        }
-      })
-      .catch((error) => dispatch(loginError(error)));
+  return (dispatch) => {
+    return new Promise((resolve, reject) => {
+      auth
+        .signInWithEmailAndPassword(props.email, props.password)
+        .then((data) => {
+          if (auth.currentUser) {
+            dispatch(loginSuccess(data));
+            resolve(data);
+          }
+        })
+        .catch((error) => {
+          dispatch(loginError(error));
+          reject(error);
+        });
+    });
   };
 }
 
@@ -49,12 +55,18 @@ export function userLogoutError(props) {
 }
 
 export function userLogoutThunk() {
-  return async (dispatch) => {
-    await auth
-      .signOut()
-      .then(() => {
-        dispatch({ type: loginActions.USER_LOGOUT });
-      })
-      .catch((error) => dispatch(userLogoutError(error)));
+  return (dispatch) => {
+    return new Promise((resolve, reject) => {
+      auth
+        .signOut()
+        .then(() => {
+          dispatch({ type: loginActions.USER_LOGOUT });
+          resolve("Logged Out");
+        })
+        .catch((error) => {
+          dispatch(userLogoutError(error));
+          reject(error);
+        });
+    });
   };
 }

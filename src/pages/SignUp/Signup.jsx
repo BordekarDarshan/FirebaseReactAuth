@@ -48,6 +48,7 @@ export class Signup extends Component {
               email: profileData.email,
               phone: profileData.phone,
               address: profileData.address,
+              avatar: profileData.avatar,
             };
             this.setState({
               initialState: data,
@@ -165,6 +166,18 @@ export class Signup extends Component {
                     );
                   }}
                 ></input>
+                {}
+                {this.props.profile === "/profile" && (
+                  <img
+                    src={values.avatar}
+                    alt="avatar"
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      borderRadius: "50%",
+                    }}
+                  ></img>
+                )}
 
                 <FirstRow>
                   <Field

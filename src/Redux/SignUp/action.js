@@ -41,10 +41,12 @@ export function signUpThunk(props) {
             })
             .catch((error) => {
               dispatch(signUpError(error));
+              reject(error);
             });
         })
         .catch((error) => {
           dispatch(signUpError(error));
+          reject(error);
         });
     });
   };

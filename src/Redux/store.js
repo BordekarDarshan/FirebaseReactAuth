@@ -10,7 +10,7 @@ import logger from "redux-logger";
 export const persistConfig = {
   key: "user",
   storage: storage,
-  whitelist: ["login"],
+  whitelist: ["login", "profile"],
 };
 
 const rootReducer = combineReducers({

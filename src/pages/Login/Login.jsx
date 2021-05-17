@@ -22,7 +22,9 @@ export class Login extends Component {
         password: values.password,
       })
       .then(() => {
-        this.props.history.push("/profile");
+        if (this.props.loginData) {
+          this.props.history.push("/profile");
+        }
       });
   };
   render() {
@@ -93,7 +95,7 @@ export class Login extends Component {
   }
 }
 let mapStateToProps = (state) => ({
-  state: state,
+  loginData: state.login.loginSuccess,
 });
 
 export default withRouter(connect(mapStateToProps, { loginThunk })(Login));

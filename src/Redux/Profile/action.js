@@ -25,19 +25,25 @@ export function profileError(error) {
 }
 
 export function profileThunk(props) {
-  return async (dispatch) => {
-    await db
-      .collection("users")
-      .doc(props.user)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          dispatch(profileSuccess(doc.data()));
-        } else {
-          dispatch(profileError("No data found!"));
-        }
-      })
-      .catch((error) => dispatch(profileError(error)));
+  return (dispatch) => {
+    return new Promise((resolve, reject) => {
+      db.collection("users")
+        .doc(props.user)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            dispatch(profileSuccess(doc.data()));
+            resolve(doc.data());
+          } else {
+            dispatch(profileError("No data found!"));
+            reject("No data found!");
+          }
+        })
+        .catch((error) => {
+          dispatch(profileError(error));
+          reject("No data found!");
+        });
+    });
   };
 }
 
@@ -60,17 +66,22 @@ export function updateProfileError(error) {
 }
 
 export function updateProfileThunk(props) {
-  return async (dispatch) => {
-    await db
-      .collection("users")
-      .doc(props.user)
-      .update({
-        ...props.signUpdata,
-      })
-      .then(() => {
-        dispatch(updateProfileSuccess("Data updated successfully"));
-      })
-      .catch((error) => dispatch(updateProfileError(error)));
+  return (dispatch) => {
+    return new Promise((resolve, reject) => {
+      db.collection("users")
+        .doc(props.user)
+        .update({
+          ...props.signUpdata,
+        })
+        .then(() => {
+          dispatch(updateProfileSuccess("Data updated successfully"));
+          resolve("Data updated successfully");
+        })
+        .catch((error) => {
+          dispatch(updateProfileError(error));
+          reject(error);
+        });
+    });
   };
 }
 
@@ -94,28 +105,33 @@ export function uploadImageError(error) {
 
 export function uploadImageThunk(props) {
   return (dispatch) => {
-    firebaseStorage
-      .ref(`/images/${props.imageAsFile.name}`)
-      .put(props.imageAsFile)
-      .on(
-        "state_changed",
-        (snapShot) => {
-          console.log(snapShot);
-        },
-        (err) => {
-          console.log(err);
-        },
-        () => {
-          firebaseStorage
-            .ref("images")
-            .child(props.imageAsFile.name)
-            .getDownloadURL()
-            .then((fireBaseUrl) => {
-              console.log(fireBaseUrl);
-              dispatch(uploadImageSuccess(fireBaseUrl));
-            })
-            .catch((error) => dispatch(uploadImageError(error)));
-        }
-      );
+    return new Promise((resolve, reject) => {
+      firebaseStorage
+        .ref(`/images/${props.imageAsFile.name}`)
+        .put(props.imageAsFile)
+        .on(
+          "state_changed",
+          (snapShot) => {
+            console.log(snapShot);
+          },
+          (err) => {
+            console.log(err);
+          },
+          () => {
+            firebaseStorage
+              .ref("images")
+              .child(props.imageAsFile.name)
+              .getDownloadURL()
+              .then((fireBaseUrl) => {
+                dispatch(uploadImageSuccess(fireBaseUrl));
+                resolve(fireBaseUrl);
+              })
+              .catch((error) => {
+                dispatch(uploadImageError(error));
+                reject(error);
+              });
+          }
+        );
+    });
   };
 }
