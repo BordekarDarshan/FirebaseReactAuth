@@ -25,6 +25,7 @@ export class Signup extends Component {
       phone: "",
       address: "",
       password: "",
+      avatar: "",
     },
   };
   componentDidMount() {
@@ -89,6 +90,7 @@ export class Signup extends Component {
       this.props.history.push("/login");
     });
   };
+
   render() {
     return (
       <Wrapper>
@@ -118,8 +120,34 @@ export class Signup extends Component {
               }
             }}
           >
-            {({ errors, handleSubmit, values, handleChange }) => (
+            {({
+              errors,
+              setFieldValue,
+              handleSubmit,
+              values,
+              handleChange,
+            }) => (
               <form noValidate onSubmit={handleSubmit} autoComplete="off">
+                <input
+                  type="file"
+                  name="avatar"
+                  onChange={(event) => {
+                    setFieldValue(
+                      "avatar",
+                      event.currentTarget.files.length !== 0
+                        ? URL.createObjectURL(event.currentTarget.files[0])
+                        : values.avatar
+                    );
+                  }}
+                ></input>
+                <img
+                  src={values.avatar}
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    borderRadius: "50%",
+                  }}
+                ></img>
                 <FirstRow>
                   <Field
                     id="outlined-basic"
