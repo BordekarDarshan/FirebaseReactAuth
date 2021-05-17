@@ -12,8 +12,13 @@ import {
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { signUpThunk } from "../../Redux/SignUp/action";
-import { profileThunk, updateProfileThunk } from "../../Redux/Profile/action";
+import {
+  profileThunk,
+  updateProfileThunk,
+  uploadImageThunk,
+} from "../../Redux/Profile/action";
 import { userLogoutThunk } from "../../Redux/Login/action";
+import { firebaseStorage } from "../../Firebase/Firebase";
 
 export class Signup extends Component {
   state = {
@@ -53,24 +58,44 @@ export class Signup extends Component {
   }
 
   handleSubmitHandler = (values, resetForm, type) => {
+    console.log(values);
+
     if (type === "add") {
-      this.props
-        .signUpThunk({
-          signUpdata: {
-            firstName: values.firstName,
-            lastName: values.lastName,
-            age: values.age,
-            email: values.email,
-            phone: values.phone,
-            address: values.address,
-            password: values.password,
-          },
-        })
-        .then(() => {
-          if (this.props.signUpData) {
-            this.props.history.push("/login");
+      firebaseStorage
+        .ref(`/images/${values.avatar.name}`)
+        .put(values.avatar)
+        .on(
+          "state_changed",
+          (snapShot) => {},
+          (err) => {},
+          () => {
+            firebaseStorage
+              .ref("images")
+              .child(values.avatar.name)
+              .getDownloadURL()
+              .then((fireBaseUrl) => {
+                this.props
+                  .signUpThunk({
+                    signUpdata: {
+                      firstName: values.firstName,
+                      lastName: values.lastName,
+                      age: values.age,
+                      email: values.email,
+                      phone: values.phone,
+                      address: values.address,
+                      password: values.password,
+                      avatar: fireBaseUrl,
+                    },
+                  })
+                  .then(() => {
+                    if (this.props.signUpData) {
+                      this.props.history.push("/login");
+                    }
+                  });
+              })
+              .catch((error) => console.log(error));
           }
-        });
+        );
     } else {
       this.props.updateProfileThunk({
         user: this.props?.user && this.props.user,
@@ -99,18 +124,18 @@ export class Signup extends Component {
             enableReinitialize
             initialValues={this.state.initialState}
             validationSchema={Yup.object().shape({
-              firstName: Yup.string().required("Please provide firstName"),
-              lastName: Yup.string().required("Please provide lastname"),
-              age: Yup.number().required("Please provide age"),
-              email: Yup.string().required("Please provide email"),
-              password:
-                this.props.profile === "/profile"
-                  ? Yup.string()
-                  : Yup.string()
-                      .required("No password provided")
-                      .min(8, "Password must be 8 characters long"),
-              address: Yup.string().required("Please provide address"),
-              phone: Yup.number().required("Please provide number"),
+              // firstName: Yup.string().required("Please provide firstName"),
+              // lastName: Yup.string().required("Please provide lastname"),
+              // age: Yup.number().required("Please provide age"),
+              // email: Yup.string().required("Please provide email"),
+              // password:
+              //   this.props.profile === "/profile"
+              //     ? Yup.string()
+              //     : Yup.string()
+              //         .required("No password provided")
+              //         .min(8, "Password must be 8 characters long"),
+              // address: Yup.string().required("Please provide address"),
+              // phone: Yup.number().required("Please provide number"),
             })}
             onSubmit={(values, { resetForm }) => {
               if (this.props.profile === "/profile") {
@@ -135,19 +160,12 @@ export class Signup extends Component {
                     setFieldValue(
                       "avatar",
                       event.currentTarget.files.length !== 0
-                        ? URL.createObjectURL(event.currentTarget.files[0])
+                        ? event.currentTarget.files[0]
                         : values.avatar
                     );
                   }}
                 ></input>
-                <img
-                  src={values.avatar}
-                  style={{
-                    width: "150px",
-                    height: "150px",
-                    borderRadius: "50%",
-                  }}
-                ></img>
+
                 <FirstRow>
                   <Field
                     id="outlined-basic"
@@ -293,6 +311,7 @@ let mapStateToProps = (state) => ({
   profileData: state.profile.profileSuccess,
   isUserLoggedIn: state.login.isUserLoggedIn,
   signUpData: state.signUp.signUpSuccess,
+  imageUrl: state.profile.uploadImageSuccess,
 });
 
 export default withRouter(
@@ -301,5 +320,6 @@ export default withRouter(
     signUpThunk,
     profileThunk,
     updateProfileThunk,
+    uploadImageThunk,
   })(Signup)
 );

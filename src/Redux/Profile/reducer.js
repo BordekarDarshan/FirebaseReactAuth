@@ -6,6 +6,8 @@ let initial_state = {
   profileError: null,
   updateProfileSuccess: null,
   updateProfileError: null,
+  uploadImageSuccess: null,
+  uploadImageError: null,
 };
 
 export const profileReducer = (state = initial_state, action) => {
@@ -37,6 +39,18 @@ export const profileReducer = (state = initial_state, action) => {
     case loginActions.USER_LOGOUT:
       return {
         ...initial_state,
+      };
+    case profileActions.AVATAR_UPLOAD_SUCCESS:
+      return {
+        ...state,
+        uploadImageSuccess: action.payload,
+        uploadImageError: null,
+      };
+    case profileActions.AVATAR_UPLOAD_ERROR:
+      return {
+        ...state,
+        uploadImageSuccess: null,
+        uploadImageError: action.payload,
       };
     default:
       return state;
