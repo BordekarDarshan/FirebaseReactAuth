@@ -59,8 +59,6 @@ export class Signup extends Component {
   }
 
   handleSubmitHandler = (values, resetForm, type) => {
-    console.log(values);
-
     if (type === "add") {
       firebaseStorage
         .ref(`/images/${values.avatar.name}`)
@@ -98,16 +96,102 @@ export class Signup extends Component {
           }
         );
     } else {
-      this.props.updateProfileThunk({
-        user: this.props?.user && this.props.user,
-        signUpdata: {
-          firstName: values.firstName,
-          lastName: values.lastName,
-          age: values.age,
-          phone: values.phone,
-          address: values.address,
-        },
-      });
+      if (values.avatar !== this.props.profileData?.avatar) {
+        firebaseStorage
+          .ref(`/images/${values.avatar.name}`)
+          .put(values.avatar)
+          .on(
+            "state_changed",
+            (snapShot) => {},
+            (err) => {},
+            () => {
+              firebaseStorage
+                .ref("images")
+                .child(values.avatar.name)
+                .getDownloadURL()
+                .then((fireBaseUrl) => {
+                  this.props
+                    .updateProfileThunk({
+                      user: this.props?.user && this.props.user,
+                      signUpdata: {
+                        firstName: values.firstName,
+                        lastName: values.lastName,
+                        age: values.age,
+                        phone: values.phone,
+                        address: values.address,
+                        avatar: fireBaseUrl,
+                      },
+                    })
+                    .then(() => {
+                      if (this.props.updateProfileSuccess) {
+                        this.props
+                          .profileThunk({
+                            user: this.props?.user && this.props.user,
+                          })
+                          .then(() => {
+                            if (this.props.profileData) {
+                              let { profileData } = this.props;
+
+                              let data = {
+                                firstName: profileData.firstName,
+                                lastName: profileData.lastName,
+                                age: profileData.age,
+                                email: profileData.email,
+                                phone: profileData.phone,
+                                address: profileData.address,
+                                avatar: profileData.avatar,
+                              };
+                              this.setState({
+                                initialState: data,
+                              });
+                            }
+                          });
+                      }
+                    });
+                })
+                .catch((error) => console.log(error));
+            }
+          );
+      } else {
+        this.props
+          .updateProfileThunk({
+            user: this.props?.user && this.props.user,
+            signUpdata: {
+              firstName: values.firstName,
+              lastName: values.lastName,
+              age: values.age,
+              phone: values.phone,
+              address: values.address,
+              avatar: values.avatar,
+            },
+          })
+          .then(() => {
+            if (this.props.updateProfileSuccess) {
+              this.props
+                .profileThunk({
+                  user: this.props?.user && this.props.user,
+                })
+                .then(() => {
+                  if (this.props.profileData) {
+                    let { profileData } = this.props;
+
+                    let data = {
+                      firstName: profileData.firstName,
+                      lastName: profileData.lastName,
+                      age: profileData.age,
+                      email: profileData.email,
+                      phone: profileData.phone,
+                      address: profileData.address,
+                      avatar: profileData.avatar,
+                    };
+                    this.setState({
+                      initialState: data,
+                    });
+                  }
+                });
+            }
+          });
+      }
     }
   };
 
@@ -325,6 +409,7 @@ let mapStateToProps = (state) => ({
   isUserLoggedIn: state.login.isUserLoggedIn,
   signUpData: state.signUp.signUpSuccess,
   imageUrl: state.profile.uploadImageSuccess,
+  updateProfileSuccess: state.profile.updateProfileSuccess,
 });
 
 export default withRouter(
