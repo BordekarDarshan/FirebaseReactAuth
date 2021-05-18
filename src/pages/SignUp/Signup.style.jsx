@@ -45,8 +45,26 @@ export const SubmitWrapper = styled.div`
     margin: 10px;
   }
   @media (max-width: 967px) {
+    flex-flow: column;
     > span {
-      margin: 1rem 0 0 0;
+      margin: 1rem 0;
     }
+  }
+`;
+
+export const AvatarSection = styled.div`
+  margin: 10px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  > label {
+    background-color: #3f51b5;
+    color: white;
+    padding: 0.5rem;
+    font-family: sans-serif;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    margin: 1rem;
+    text-align: center;
   }
 `;

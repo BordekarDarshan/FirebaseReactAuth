@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import * as Yup from "yup";
-import { Formik } from "formik";
+import { ErrorMessage, Formik } from "formik";
 import { Button } from "@material-ui/core";
 import {
   Container,
@@ -8,6 +8,7 @@ import {
   FirstRow,
   SubmitWrapper,
   Wrapper,
+  AvatarSection,
 } from "./Signup.style";
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
@@ -32,6 +33,7 @@ export class Signup extends Component {
       password: "",
       avatar: "",
     },
+    loader: false,
   };
   componentDidMount() {
     if (this.props.profile === "/profile") {
@@ -59,6 +61,7 @@ export class Signup extends Component {
   }
 
   handleSubmitHandler = (values, resetForm, type) => {
+    this.setState({ loader: true });
     if (type === "add") {
       firebaseStorage
         .ref(`/images/${values.avatar.name}`)
@@ -87,12 +90,16 @@ export class Signup extends Component {
                     },
                   })
                   .then(() => {
+                    this.setState({ loader: false });
                     if (this.props.signUpData) {
                       this.props.history.push("/login");
                     }
                   });
               })
-              .catch((error) => console.log(error));
+              .catch((error) => {
+                this.setState({ loader: false });
+                console.log(error);
+              });
           }
         );
     } else {
@@ -129,6 +136,7 @@ export class Signup extends Component {
                             user: this.props?.user && this.props.user,
                           })
                           .then(() => {
+                            console.log();
                             if (this.props.profileData) {
                               let { profileData } = this.props;
 
@@ -143,13 +151,17 @@ export class Signup extends Component {
                               };
                               this.setState({
                                 initialState: data,
+                                loader: false,
                               });
                             }
                           });
                       }
                     });
                 })
-                .catch((error) => console.log(error));
+                .catch((error) => {
+                  this.setState({ loader: false });
+                  console.log(error);
+                });
             }
           );
       } else {
@@ -186,7 +198,10 @@ export class Signup extends Component {
                     };
                     this.setState({
                       initialState: data,
+                      loader: false,
                     });
+                  } else {
+                    this.setState({ loader: false });
                   }
                 });
             }
@@ -209,18 +224,24 @@ export class Signup extends Component {
             enableReinitialize
             initialValues={this.state.initialState}
             validationSchema={Yup.object().shape({
-              // firstName: Yup.string().required("Please provide firstName"),
-              // lastName: Yup.string().required("Please provide lastname"),
-              // age: Yup.number().required("Please provide age"),
-              // email: Yup.string().required("Please provide email"),
-              // password:
-              //   this.props.profile === "/profile"
-              //     ? Yup.string()
-              //     : Yup.string()
-              //         .required("No password provided")
-              //         .min(8, "Password must be 8 characters long"),
-              // address: Yup.string().required("Please provide address"),
-              // phone: Yup.number().required("Please provide number"),
+              firstName: Yup.string().required("Please provide firstName"),
+              lastName: Yup.string().required("Please provide lastname"),
+              age: Yup.number().required("Please provide age"),
+              email: Yup.string()
+                .email("Please provide valid email")
+                .required("Please provide email"),
+              password:
+                this.props.profile === "/profile"
+                  ? Yup.string()
+                  : Yup.string()
+                      .required("No password provided")
+                      .min(8, "Password must be 8 characters long"),
+              address: Yup.string().required("Please provide address"),
+              phone: Yup.number().required("Please provide number"),
+              avatar:
+                this.props.profile === "/profile"
+                  ? Yup.string()
+                  : Yup.string().required("Choose your avatar"),
             })}
             onSubmit={(values, { resetForm }) => {
               if (this.props.profile === "/profile") {
@@ -236,33 +257,46 @@ export class Signup extends Component {
               handleSubmit,
               values,
               handleChange,
+              touched,
             }) => (
               <form noValidate onSubmit={handleSubmit} autoComplete="off">
-                <input
-                  type="file"
-                  name="avatar"
-                  onChange={(event) => {
-                    setFieldValue(
-                      "avatar",
-                      event.currentTarget.files.length !== 0
-                        ? event.currentTarget.files[0]
-                        : values.avatar
-                    );
-                  }}
-                ></input>
-                {}
-                {this.props.profile === "/profile" &&
-                  this.props.profileData?.avatar && (
-                    <img
-                      src={this.props.profileData?.avatar}
-                      alt="avatar"
-                      style={{
-                        width: "150px",
-                        height: "150px",
-                        borderRadius: "50%",
-                      }}
-                    ></img>
-                  )}
+                <AvatarSection>
+                  {this.props.profile === "/profile" &&
+                    this.props.profileData?.avatar && (
+                      <img
+                        src={this.props.profileData?.avatar}
+                        alt="avatar"
+                        style={{
+                          width: "150px",
+                          height: "150px",
+                          borderRadius: "50%",
+                        }}
+                      ></img>
+                    )}
+                  <input
+                    type="file"
+                    name="avatar"
+                    id="upload"
+                    hidden
+                    onChange={(event) => {
+                      setFieldValue(
+                        "avatar",
+                        event.currentTarget.files.length !== 0
+                          ? event.currentTarget.files[0]
+                          : values.avatar
+                      );
+                    }}
+                    error={errors.avatar}
+                    accept="image/png, image/jpeg"
+                  ></input>
+
+                  <label htmlFor="upload">
+                    {this.props.profile === "/profile"
+                      ? `Update Avatar`
+                      : `Choose Avatar`}
+                  </label>
+                  <span>{values.avatar?.name}</span>
+                </AvatarSection>
 
                 <FirstRow>
                   <Field
@@ -272,7 +306,7 @@ export class Signup extends Component {
                     name="firstName"
                     value={values.firstName}
                     onChange={handleChange}
-                    error={errors.firstName}
+                    error={errors.firstName && touched.firstName}
                     style={{
                       margin: "0 0 1rem 0",
                     }}
@@ -285,7 +319,7 @@ export class Signup extends Component {
                     label="Last name"
                     value={values.lastName}
                     onChange={handleChange}
-                    error={errors.lastName}
+                    error={errors.lastName && touched.lastName}
                     style={{
                       margin: "0 0 1rem 0",
                     }}
@@ -302,7 +336,8 @@ export class Signup extends Component {
                     style={{
                       margin: "0 0 1rem 0",
                     }}
-                    error={errors.age}
+                    error={errors.age && touched.age}
+                    inputProps={{ maxLength: 3 }}
                   />
 
                   <Field
@@ -316,7 +351,7 @@ export class Signup extends Component {
                     style={{
                       margin: "0 0 1rem 0",
                     }}
-                    error={errors.email}
+                    error={errors.email && touched.email}
                   />
                 </FirstRow>
                 <Field
@@ -332,7 +367,8 @@ export class Signup extends Component {
                     boxSizing: "border-box",
                     margin: "1rem 0",
                   }}
-                  error={errors.phone}
+                  inputProps={{ maxLength: 10 }}
+                  error={errors.phone && touched.phone}
                 />
                 <Field
                   id="outlined-textarea"
@@ -347,30 +383,39 @@ export class Signup extends Component {
                     boxSizing: "border-box",
                     margin: "1rem 0",
                   }}
-                  error={errors.address}
+                  error={errors.address && touched.address}
                 />
                 {this.props.profile !== "/profile" && (
-                  <Field
-                    id="outlined-basic"
-                    name="password"
-                    variant="outlined"
-                    label="password"
-                    value={values.password}
-                    onChange={handleChange}
-                    style={{
-                      width: "100%",
-                      boxSizing: "border-box",
-                      margin: "1rem 0",
-                    }}
-                    error={errors.password}
-                  />
+                  <>
+                    <Field
+                      id="outlined-basic"
+                      name="password"
+                      variant="outlined"
+                      label="password"
+                      value={values.password}
+                      onChange={handleChange}
+                      style={{
+                        width: "100%",
+                        boxSizing: "border-box",
+                        margin: "1rem 0",
+                      }}
+                      error={errors.password && touched.password}
+                    />
+
+                    <ErrorMessage name="password" />
+                  </>
                 )}
 
                 <SubmitWrapper>
                   {this.props.profile === "/profile" ? (
                     <>
-                      <Button type="submit" variant="contained" color="primary">
-                        SAVE
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={this.state.loader}
+                      >
+                        {this.state.loader ? `....` : `SAVE`}
                       </Button>
                       <Button
                         variant="contained"
@@ -382,8 +427,13 @@ export class Signup extends Component {
                     </>
                   ) : (
                     <>
-                      <Button type="submit" variant="contained" color="primary">
-                        SIGN UP
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={this.state.loader}
+                      >
+                        {this.state.loader ? `....` : `SIGN UP`}
                       </Button>
 
                       <span>

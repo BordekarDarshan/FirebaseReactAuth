@@ -14,14 +14,17 @@ export class Login extends Component {
       email: "",
       password: "",
     },
+    loader: false,
   };
   handleSubmitHandler = (values) => {
+    this.setState({ loader: true });
     this.props
       .loginThunk({
         email: values.email,
         password: values.password,
       })
       .then(() => {
+        this.setState({ loader: false });
         if (this.props.loginData) {
           this.props.history.push("/profile");
         }
@@ -76,8 +79,13 @@ export class Login extends Component {
                 />
 
                 <SubmitWrapper>
-                  <Button type="submit" variant="contained" color="primary">
-                    SIGN IN
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={this.state.loader}
+                  >
+                    {this.state.loader ? `....` : `SIGN IN`}
                   </Button>
                   <span>
                     Create new account?{" "}
