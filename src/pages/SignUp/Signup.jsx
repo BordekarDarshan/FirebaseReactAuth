@@ -251,17 +251,18 @@ export class Signup extends Component {
                   }}
                 ></input>
                 {}
-                {this.props.profile === "/profile" && (
-                  <img
-                    src={values.avatar}
-                    alt="avatar"
-                    style={{
-                      width: "150px",
-                      height: "150px",
-                      borderRadius: "50%",
-                    }}
-                  ></img>
-                )}
+                {this.props.profile === "/profile" &&
+                  this.props.profileData?.avatar && (
+                    <img
+                      src={this.props.profileData?.avatar}
+                      alt="avatar"
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        borderRadius: "50%",
+                      }}
+                    ></img>
+                  )}
 
                 <FirstRow>
                   <Field
@@ -375,7 +376,6 @@ export class Signup extends Component {
                         variant="contained"
                         color="primary"
                         onClick={() => this.logoutHandler()}
-                        style={{ margin: "0 0 0 10px" }}
                       >
                         LOGOUT
                       </Button>

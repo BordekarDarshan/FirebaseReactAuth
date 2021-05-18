@@ -41,8 +41,10 @@ export const SubmitWrapper = styled.div`
       cursor: pointer;
     }
   }
+  > button {
+    margin: 10px;
+  }
   @media (max-width: 967px) {
-    flex-flow: column;
     > span {
       margin: 1rem 0 0 0;
     }
