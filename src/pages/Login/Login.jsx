@@ -41,13 +41,15 @@ export class Login extends Component {
           <Formik
             initialValues={this.state.initialState}
             validationSchema={Yup.object().shape({
-              email: Yup.string().required("Please provide email number"),
+              email: Yup.string()
+                .email("Please provide valid email")
+                .required("Please provide email"),
               password: Yup.string()
                 .required("No password provided")
                 .min(8, "Password must be 8 characters long"),
             })}
-            onSubmit={(values, { resetForm }) => {
-              this.handleSubmitHandler(values, resetForm);
+            onSubmit={(values) => {
+              this.handleSubmitHandler(values);
             }}
           >
             {({ errors, handleSubmit, values, handleChange }) => (

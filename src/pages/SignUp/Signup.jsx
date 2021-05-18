@@ -38,135 +38,97 @@ export class Signup extends Component {
     loader: false,
     logoutLoader: false,
   };
+
+  fetchUserDataHandler = () => {
+    this.props
+      .profileThunk({ user: this.props?.user && this.props.user })
+      .then(() => {
+        if (this.props.profileData) {
+          let { profileData } = this.props;
+
+          let data = {
+            firstName: profileData.firstName,
+            lastName: profileData.lastName,
+            age: profileData.age,
+            email: profileData.email,
+            phone: profileData.phone,
+            address: profileData.address,
+            avatar: profileData.avatar,
+          };
+          this.setState({
+            initialState: data,
+            loader: false,
+          });
+        }
+      });
+  };
   componentDidMount() {
     if (this.props.profile === "/profile") {
-      this.props
-        .profileThunk({ user: this.props?.user && this.props.user })
-        .then(() => {
-          if (this.props.profileData) {
-            let { profileData } = this.props;
-
-            let data = {
-              firstName: profileData.firstName,
-              lastName: profileData.lastName,
-              age: profileData.age,
-              email: profileData.email,
-              phone: profileData.phone,
-              address: profileData.address,
-              avatar: profileData.avatar,
-            };
-            this.setState({
-              initialState: data,
-            });
-          }
-        });
+      this.fetchUserDataHandler();
     }
   }
 
-  handleSubmitHandler = (values, resetForm, type) => {
+  handleSubmitHandler = (values, type) => {
     this.setState({ loader: true });
     if (type === "add") {
-      firebaseStorage
-        .ref(`/images/${values.avatar.name}`)
-        .put(values.avatar)
-        .on(
-          "state_changed",
-          (snapShot) => {},
-          (err) => {},
-          () => {
-            firebaseStorage
-              .ref("images")
-              .child(values.avatar.name)
-              .getDownloadURL()
-              .then((fireBaseUrl) => {
-                this.props
-                  .signUpThunk({
-                    signUpdata: {
-                      firstName: values.firstName,
-                      lastName: values.lastName,
-                      age: values.age,
-                      email: values.email,
-                      phone: values.phone,
-                      address: values.address,
-                      password: values.password,
-                      avatar: fireBaseUrl,
-                    },
-                  })
-                  .then(() => {
-                    this.setState({ loader: false });
-                    if (this.props.signUpData) {
-                      this.props.history.push("/login");
-                    }
-                  });
+      this.props
+        .uploadImageThunk({ imageAsFile: values.avatar })
+        .then(() => {
+          if (this.props.imageUrl) {
+            this.props
+              .signUpThunk({
+                signUpdata: {
+                  firstName: values.firstName,
+                  lastName: values.lastName,
+                  age: values.age,
+                  email: values.email,
+                  phone: values.phone,
+                  address: values.address,
+                  password: values.password,
+                  avatar: this.props.imageUrl,
+                },
               })
-              .catch((error) => {
+              .then(() => {
                 this.setState({ loader: false });
-                console.log(error);
+                if (this.props.signUpData) {
+                  this.props.history.push("/login");
+                }
               });
           }
-        );
+        })
+        .catch((error) => {
+          this.setState({ loader: false });
+          console.log(error);
+        });
     } else {
       if (values.avatar !== this.props.profileData?.avatar) {
-        firebaseStorage
-          .ref(`/images/${values.avatar.name}`)
-          .put(values.avatar)
-          .on(
-            "state_changed",
-            (snapShot) => {},
-            (err) => {},
-            () => {
-              firebaseStorage
-                .ref("images")
-                .child(values.avatar.name)
-                .getDownloadURL()
-                .then((fireBaseUrl) => {
-                  this.props
-                    .updateProfileThunk({
-                      user: this.props?.user && this.props.user,
-                      signUpdata: {
-                        firstName: values.firstName,
-                        lastName: values.lastName,
-                        age: values.age,
-                        phone: values.phone,
-                        address: values.address,
-                        avatar: fireBaseUrl,
-                      },
-                    })
-                    .then(() => {
-                      if (this.props.updateProfileSuccess) {
-                        this.props
-                          .profileThunk({
-                            user: this.props?.user && this.props.user,
-                          })
-                          .then(() => {
-                            console.log();
-                            if (this.props.profileData) {
-                              let { profileData } = this.props;
-
-                              let data = {
-                                firstName: profileData.firstName,
-                                lastName: profileData.lastName,
-                                age: profileData.age,
-                                email: profileData.email,
-                                phone: profileData.phone,
-                                address: profileData.address,
-                                avatar: profileData.avatar,
-                              };
-                              this.setState({
-                                initialState: data,
-                                loader: false,
-                              });
-                            }
-                          });
-                      }
-                    });
+        this.props
+          .uploadImageThunk({ imageAsFile: values.avatar })
+          .then(() => {
+            if (this.props.imageUrl) {
+              this.props
+                .updateProfileThunk({
+                  user: this.props?.user && this.props.user,
+                  signUpdata: {
+                    firstName: values.firstName,
+                    lastName: values.lastName,
+                    age: values.age,
+                    phone: values.phone,
+                    address: values.address,
+                    avatar: this.props.imageUrl,
+                  },
                 })
-                .catch((error) => {
-                  this.setState({ loader: false });
-                  console.log(error);
+                .then(() => {
+                  if (this.props.updateProfileSuccess) {
+                    this.fetchUserDataHandler();
+                  }
                 });
             }
-          );
+          })
+          .catch((error) => {
+            this.setState({ loader: false });
+            console.log(error);
+          });
       } else {
         this.props
           .updateProfileThunk({
@@ -182,31 +144,7 @@ export class Signup extends Component {
           })
           .then(() => {
             if (this.props.updateProfileSuccess) {
-              this.props
-                .profileThunk({
-                  user: this.props?.user && this.props.user,
-                })
-                .then(() => {
-                  if (this.props.profileData) {
-                    let { profileData } = this.props;
-
-                    let data = {
-                      firstName: profileData.firstName,
-                      lastName: profileData.lastName,
-                      age: profileData.age,
-                      email: profileData.email,
-                      phone: profileData.phone,
-                      address: profileData.address,
-                      avatar: profileData.avatar,
-                    };
-                    this.setState({
-                      initialState: data,
-                      loader: false,
-                    });
-                  } else {
-                    this.setState({ loader: false });
-                  }
-                });
+              this.fetchUserDataHandler();
             }
           });
       }
@@ -265,11 +203,11 @@ export class Signup extends Component {
                     ? Yup.string()
                     : Yup.string().required("Choose your avatar"),
               })}
-              onSubmit={(values, { resetForm }) => {
+              onSubmit={(values) => {
                 if (this.props.profile === "/profile") {
-                  this.handleSubmitHandler(values, resetForm, "update");
+                  this.handleSubmitHandler(values, "update");
                 } else {
-                  this.handleSubmitHandler(values, resetForm, "add");
+                  this.handleSubmitHandler(values, "add");
                 }
               }}
             >
