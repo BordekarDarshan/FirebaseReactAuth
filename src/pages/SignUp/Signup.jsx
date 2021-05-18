@@ -22,7 +22,7 @@ import {
 } from "../../Redux/Profile/action";
 import { userLogoutThunk } from "../../Redux/Login/action";
 import signout from "../../Asset/Signout.png";
-import { Popover } from "antd";
+import { message, Popover } from "antd";
 
 export class Signup extends Component {
   state = {
@@ -96,6 +96,12 @@ export class Signup extends Component {
                 if (this.props.signUpData) {
                   this.props.history.push("/login");
                 }
+              })
+              .catch((error) => {
+                if (error.code === "auth/invalid-email") {
+                  message.error("Please enter valid Email", 3);
+                }
+                this.setState({ loader: false });
               });
           }
         })
@@ -267,7 +273,12 @@ export class Signup extends Component {
                           </Popover>
                         )}
                       </span>
-                      <ErrorMessage name="avatar" />
+
+                      {errors.avatar && touched.avatar && (
+                        <div>
+                          <span style={{ color: "red" }}>{errors.avatar}</span>
+                        </div>
+                      )}
                     </div>
                   </AvatarSection>
 
