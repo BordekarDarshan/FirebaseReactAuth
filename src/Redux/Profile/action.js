@@ -8,6 +8,8 @@ export const profileActions = {
   AVATAR_UPLOAD_ERROR: "AVATAR_UPLOAD_ERROR",
 };
 
+// Fetch User Information
+
 export function profileSuccess(props) {
   return (dispatch) => {
     dispatch({
@@ -47,7 +49,7 @@ export function profileThunk(props) {
   };
 }
 
-// Update user information.
+// Update User information.
 
 export function updateProfileSuccess(props) {
   return (dispatch) => {
@@ -85,7 +87,7 @@ export function updateProfileThunk(props) {
   };
 }
 
-// Upload user Image.
+// Upload User Image.
 
 export function uploadImageSuccess(props) {
   return (dispatch) => {

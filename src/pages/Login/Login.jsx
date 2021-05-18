@@ -17,6 +17,7 @@ export class Login extends Component {
     },
     loader: false,
   };
+  //User Login handler.
   handleSubmitHandler = (values) => {
     this.setState({ loader: true });
     this.props
@@ -48,6 +49,7 @@ export class Login extends Component {
       <Wrapper>
         <Container>
           <Formik
+            // Validation
             initialValues={this.state.initialState}
             validationSchema={Yup.object().shape({
               email: Yup.string()

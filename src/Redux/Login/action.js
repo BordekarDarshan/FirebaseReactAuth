@@ -6,6 +6,8 @@ export const loginActions = {
   USER_LOGOUT_ERROR: "USER_LOGOUT_ERROR",
 };
 
+// User Login
+
 export function loginSuccess(props) {
   return (dispatch) => {
     dispatch({
@@ -40,6 +42,8 @@ export function loginThunk(props) {
     });
   };
 }
+
+// User Logout
 
 export function userLogout() {
   return {

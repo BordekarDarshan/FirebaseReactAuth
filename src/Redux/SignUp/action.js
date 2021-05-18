@@ -4,6 +4,8 @@ export const signUpActions = {
   SIGN_UP_ERROR: "SIGN_UP_ERROR",
 };
 
+// User Registration
+
 export function signUpSuccess(props) {
   return (dispatch) => {
     dispatch({

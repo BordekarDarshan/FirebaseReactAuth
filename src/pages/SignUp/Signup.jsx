@@ -42,6 +42,7 @@ export class Signup extends Component {
 
   content = (<span>Changes will be reflected after saving the data</span>);
 
+  // Fetch user data handler
   fetchUserDataHandler = () => {
     this.props
       .profileThunk({ user: this.props?.user && this.props.user })
@@ -71,6 +72,7 @@ export class Signup extends Component {
     }
   }
 
+  // Trigger sign up and update user handler based on routes
   handleSubmitHandler = (values, type) => {
     this.setState({ loader: true });
     if (type === "add") {
