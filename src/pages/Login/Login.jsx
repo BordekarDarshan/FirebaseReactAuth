@@ -37,6 +37,9 @@ export class Login extends Component {
             3
           );
         }
+        if (error.code === "auth/wrong-password") {
+          message.error("Wrong credentials", 3);
+        }
         this.setState({ loader: false });
       });
   };

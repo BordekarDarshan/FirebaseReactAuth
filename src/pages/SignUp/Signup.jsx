@@ -101,6 +101,9 @@ export class Signup extends Component {
                 if (error.code === "auth/invalid-email") {
                   message.error("Please enter valid Email", 3);
                 }
+                if (error.code === "auth/email-already-in-use") {
+                  message.error("Email already in use", 3);
+                }
                 this.setState({ loader: false });
               });
           }
