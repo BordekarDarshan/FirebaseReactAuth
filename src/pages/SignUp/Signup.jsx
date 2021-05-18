@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import * as Yup from "yup";
 import { ErrorMessage, Formik } from "formik";
+import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import { Button, CircularProgress } from "@material-ui/core";
 import {
   Container,
@@ -20,8 +21,8 @@ import {
   uploadImageThunk,
 } from "../../Redux/Profile/action";
 import { userLogoutThunk } from "../../Redux/Login/action";
-import { firebaseStorage } from "../../Firebase/Firebase";
 import signout from "../../Asset/Signout.png";
+import { Popover } from "antd";
 
 export class Signup extends Component {
   state = {
@@ -38,6 +39,8 @@ export class Signup extends Component {
     loader: false,
     logoutLoader: false,
   };
+
+  content = (<span>Changes will be reflected after saving the data</span>);
 
   fetchUserDataHandler = () => {
     this.props
@@ -201,7 +204,7 @@ export class Signup extends Component {
                 avatar:
                   this.props.profile === "/profile"
                     ? Yup.string()
-                    : Yup.string().required("Choose your avatar"),
+                    : Yup.string().required("Please choose your Avatar"),
               })}
               onSubmit={(values) => {
                 if (this.props.profile === "/profile") {
@@ -256,7 +259,15 @@ export class Signup extends Component {
                           ? `Update Avatar`
                           : `Choose Avatar`}
                       </label>
-                      <span>{values.avatar?.name}</span>
+                      <span style={{ display: "flex" }}>
+                        {values.avatar?.name}{" "}
+                        {this.props.profile === "/profile" && (
+                          <Popover content={this.content}>
+                            <InfoOutlinedIcon style={{ margin: "0 5px" }} />
+                          </Popover>
+                        )}
+                      </span>
+                      <ErrorMessage name="avatar" />
                     </div>
                   </AvatarSection>
 

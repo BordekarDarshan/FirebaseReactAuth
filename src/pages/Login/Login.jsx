@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import * as Yup from "yup";
-import { Formik } from "formik";
+import { ErrorMessage, Formik } from "formik";
 import { Button, CircularProgress } from "@material-ui/core";
 import { Field, Wrapper, SubmitWrapper } from "../SignUp/Signup.style";
 import { Container } from "./Login.style";
 import { withRouter } from "react-router";
 import { loginThunk } from "../../Redux/Login/action";
 import { connect } from "react-redux";
+import { message } from "antd";
 
 export class Login extends Component {
   state = {
@@ -30,7 +31,12 @@ export class Login extends Component {
         }
       })
       .catch((error) => {
-        console.log(error);
+        if (error.code === "auth/user-not-found") {
+          message.error(
+            "Couldn’t find a account associated with this email",
+            3
+          );
+        }
         this.setState({ loader: false });
       });
   };
@@ -52,7 +58,7 @@ export class Login extends Component {
               this.handleSubmitHandler(values);
             }}
           >
-            {({ errors, handleSubmit, values, handleChange }) => (
+            {({ errors, handleSubmit, values, handleChange, touched }) => (
               <form noValidate onSubmit={handleSubmit} autoComplete="off">
                 <Field
                   id="outlined-basic"
@@ -66,7 +72,7 @@ export class Login extends Component {
                     margin: "0 0 1rem 0",
                     boxSizing: "border-box",
                   }}
-                  error={errors.email}
+                  error={errors.email && touched.email}
                 />
 
                 <Field
@@ -81,9 +87,9 @@ export class Login extends Component {
                     boxSizing: "border-box",
                     margin: "1rem 0",
                   }}
-                  error={errors.password}
+                  error={errors.password && touched.password}
                 />
-
+                <ErrorMessage name="password" />
                 <SubmitWrapper>
                   <Button
                     type="submit"
