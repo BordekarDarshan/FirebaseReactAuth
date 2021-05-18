@@ -1,4 +1,4 @@
-import { TextField } from "@material-ui/core";
+import { Button, TextField } from "@material-ui/core";
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
@@ -54,17 +54,39 @@ export const SubmitWrapper = styled.div`
 
 export const AvatarSection = styled.div`
   margin: 10px;
+  display: flex;
+  flex-flow: column;
   align-items: center;
   justify-content: center;
-  display: flex;
-  > label {
-    background-color: #3f51b5;
-    color: white;
-    padding: 0.5rem;
-    font-family: sans-serif;
-    border-radius: 0.3rem;
-    cursor: pointer;
-    margin: 1rem;
-    text-align: center;
+
+  > div[class="upload-section"] {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    > label {
+      background-color: #3f51b5;
+      color: white;
+      padding: 0.5rem;
+      font-family: sans-serif;
+      border-radius: 0.3rem;
+      cursor: pointer;
+      margin: 1rem;
+      text-align: center;
+    }
   }
+`;
+
+export const LogoutBTN = styled.button`
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 50px;
+  > img {
+    width: 80%;
+    cursor: pointer;
+  }
+  background-color: white;
+  border-radius: 5px;
+  outline: none;
+  border: 0px;
 `;

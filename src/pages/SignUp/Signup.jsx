@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import * as Yup from "yup";
 import { ErrorMessage, Formik } from "formik";
-import { Button } from "@material-ui/core";
+import { Button, CircularProgress } from "@material-ui/core";
 import {
   Container,
   Field,
@@ -9,6 +9,7 @@ import {
   SubmitWrapper,
   Wrapper,
   AvatarSection,
+  LogoutBTN,
 } from "./Signup.style";
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
@@ -20,6 +21,7 @@ import {
 } from "../../Redux/Profile/action";
 import { userLogoutThunk } from "../../Redux/Login/action";
 import { firebaseStorage } from "../../Firebase/Firebase";
+import signout from "../../Asset/Signout.png";
 
 export class Signup extends Component {
   state = {
@@ -34,6 +36,7 @@ export class Signup extends Component {
       avatar: "",
     },
     loader: false,
+    logoutLoader: false,
   };
   componentDidMount() {
     if (this.props.profile === "/profile") {
@@ -211,245 +214,274 @@ export class Signup extends Component {
   };
 
   logoutHandler = () => {
+    this.setState({ logoutLoader: true });
     this.props.userLogoutThunk().then(() => {
+      this.setState({ logoutLoader: false });
       this.props.history.push("/login");
     });
   };
 
   render() {
     return (
-      <Wrapper>
-        <Container>
-          <Formik
-            enableReinitialize
-            initialValues={this.state.initialState}
-            validationSchema={Yup.object().shape({
-              firstName: Yup.string().required("Please provide firstName"),
-              lastName: Yup.string().required("Please provide lastname"),
-              age: Yup.number().required("Please provide age"),
-              email: Yup.string()
-                .email("Please provide valid email")
-                .required("Please provide email"),
-              password:
-                this.props.profile === "/profile"
-                  ? Yup.string()
-                  : Yup.string()
-                      .required("No password provided")
-                      .min(8, "Password must be 8 characters long"),
-              address: Yup.string().required("Please provide address"),
-              phone: Yup.number().required("Please provide number"),
-              avatar:
-                this.props.profile === "/profile"
-                  ? Yup.string()
-                  : Yup.string().required("Choose your avatar"),
-            })}
-            onSubmit={(values, { resetForm }) => {
-              if (this.props.profile === "/profile") {
-                this.handleSubmitHandler(values, resetForm, "update");
-              } else {
-                this.handleSubmitHandler(values, resetForm, "add");
-              }
-            }}
+      <>
+        {this.props.profile === "/profile" && (
+          <LogoutBTN
+            variant="contained"
+            color="primary"
+            onClick={() => this.logoutHandler()}
+            disabled={this.state.logoutLoader}
           >
-            {({
-              errors,
-              setFieldValue,
-              handleSubmit,
-              values,
-              handleChange,
-              touched,
-            }) => (
-              <form noValidate onSubmit={handleSubmit} autoComplete="off">
-                <AvatarSection>
-                  {this.props.profile === "/profile" &&
-                    this.props.profileData?.avatar && (
-                      <img
-                        src={this.props.profileData?.avatar}
-                        alt="avatar"
-                        style={{
-                          width: "150px",
-                          height: "150px",
-                          borderRadius: "50%",
+            {this.state.logoutLoader || this.state.loader ? (
+              <>
+                <CircularProgress size={24} />
+              </>
+            ) : (
+              <img alt="logout" src={signout}></img>
+            )}
+          </LogoutBTN>
+        )}
+        <Wrapper>
+          <Container>
+            <Formik
+              enableReinitialize
+              initialValues={this.state.initialState}
+              validationSchema={Yup.object().shape({
+                firstName: Yup.string().required("Please provide firstName"),
+                lastName: Yup.string().required("Please provide lastname"),
+                age: Yup.number().required("Please provide age"),
+                email: Yup.string()
+                  .email("Please provide valid email")
+                  .required("Please provide email"),
+                password:
+                  this.props.profile === "/profile"
+                    ? Yup.string()
+                    : Yup.string()
+                        .required("No password provided")
+                        .min(8, "Password must be 8 characters long"),
+                address: Yup.string().required("Please provide address"),
+                phone: Yup.number().required("Please provide number"),
+                avatar:
+                  this.props.profile === "/profile"
+                    ? Yup.string()
+                    : Yup.string().required("Choose your avatar"),
+              })}
+              onSubmit={(values, { resetForm }) => {
+                if (this.props.profile === "/profile") {
+                  this.handleSubmitHandler(values, resetForm, "update");
+                } else {
+                  this.handleSubmitHandler(values, resetForm, "add");
+                }
+              }}
+            >
+              {({
+                errors,
+                setFieldValue,
+                handleSubmit,
+                values,
+                handleChange,
+                touched,
+              }) => (
+                <form noValidate onSubmit={handleSubmit} autoComplete="off">
+                  <AvatarSection>
+                    {this.props.profile === "/profile" &&
+                      this.props.profileData?.avatar && (
+                        <img
+                          src={this.props.profileData?.avatar}
+                          alt="avatar"
+                          style={{
+                            width: "150px",
+                            height: "150px",
+                            borderRadius: "50%",
+                          }}
+                        ></img>
+                      )}
+                    <div className="upload-section">
+                      <input
+                        type="file"
+                        name="avatar"
+                        id="upload"
+                        hidden
+                        onChange={(event) => {
+                          setFieldValue(
+                            "avatar",
+                            event.currentTarget.files.length !== 0
+                              ? event.currentTarget.files[0]
+                              : values.avatar
+                          );
                         }}
-                      ></img>
-                    )}
-                  <input
-                    type="file"
-                    name="avatar"
-                    id="upload"
-                    hidden
-                    onChange={(event) => {
-                      setFieldValue(
-                        "avatar",
-                        event.currentTarget.files.length !== 0
-                          ? event.currentTarget.files[0]
-                          : values.avatar
-                      );
-                    }}
-                    error={errors.avatar}
-                    accept="image/png, image/jpeg"
-                  ></input>
+                        error={errors.avatar}
+                        accept="image/png, image/jpeg"
+                      ></input>
 
-                  <label htmlFor="upload">
-                    {this.props.profile === "/profile"
-                      ? `Update Avatar`
-                      : `Choose Avatar`}
-                  </label>
-                  <span>{values.avatar?.name}</span>
-                </AvatarSection>
+                      <label htmlFor="upload">
+                        {this.props.profile === "/profile"
+                          ? `Update Avatar`
+                          : `Choose Avatar`}
+                      </label>
+                      <span>{values.avatar?.name}</span>
+                    </div>
+                  </AvatarSection>
 
-                <FirstRow>
-                  <Field
-                    id="outlined-basic"
-                    label="First name"
-                    variant="outlined"
-                    name="firstName"
-                    value={values.firstName}
-                    onChange={handleChange}
-                    error={errors.firstName && touched.firstName}
-                    style={{
-                      margin: "0 0 1rem 0",
-                    }}
-                  />
-
-                  <Field
-                    id="outlined-basic"
-                    name="lastName"
-                    variant="outlined"
-                    label="Last name"
-                    value={values.lastName}
-                    onChange={handleChange}
-                    error={errors.lastName && touched.lastName}
-                    style={{
-                      margin: "0 0 1rem 0",
-                    }}
-                  />
-                </FirstRow>
-                <FirstRow>
-                  <Field
-                    id="outlined-basic"
-                    label="Age"
-                    variant="outlined"
-                    name="age"
-                    value={values.age}
-                    onChange={handleChange}
-                    style={{
-                      margin: "0 0 1rem 0",
-                    }}
-                    error={errors.age && touched.age}
-                    inputProps={{ maxLength: 3 }}
-                  />
-
-                  <Field
-                    id="outlined-basic"
-                    name="email"
-                    variant="outlined"
-                    label="Email"
-                    value={values.email}
-                    disabled={this.props.profile === "/profile" ? true : false}
-                    onChange={handleChange}
-                    style={{
-                      margin: "0 0 1rem 0",
-                    }}
-                    error={errors.email && touched.email}
-                  />
-                </FirstRow>
-                <Field
-                  id="outlined-textarea"
-                  label="Phone"
-                  multiline
-                  variant="outlined"
-                  name="phone"
-                  value={values.phone}
-                  onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    boxSizing: "border-box",
-                    margin: "1rem 0",
-                  }}
-                  inputProps={{ maxLength: 10 }}
-                  error={errors.phone && touched.phone}
-                />
-                <Field
-                  id="outlined-textarea"
-                  label="Address"
-                  multiline
-                  variant="outlined"
-                  name="address"
-                  value={values.address}
-                  onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    boxSizing: "border-box",
-                    margin: "1rem 0",
-                  }}
-                  error={errors.address && touched.address}
-                />
-                {this.props.profile !== "/profile" && (
-                  <>
+                  <FirstRow>
                     <Field
                       id="outlined-basic"
-                      name="password"
+                      label="First name"
                       variant="outlined"
-                      label="password"
-                      value={values.password}
+                      name="firstName"
+                      value={values.firstName}
                       onChange={handleChange}
+                      error={errors.firstName && touched.firstName}
                       style={{
-                        width: "100%",
-                        boxSizing: "border-box",
-                        margin: "1rem 0",
+                        margin: "0 0 1rem 0",
                       }}
-                      error={errors.password && touched.password}
                     />
 
-                    <ErrorMessage name="password" />
-                  </>
-                )}
+                    <Field
+                      id="outlined-basic"
+                      name="lastName"
+                      variant="outlined"
+                      label="Last name"
+                      value={values.lastName}
+                      onChange={handleChange}
+                      error={errors.lastName && touched.lastName}
+                      style={{
+                        margin: "0 0 1rem 0",
+                      }}
+                    />
+                  </FirstRow>
+                  <FirstRow>
+                    <Field
+                      id="outlined-basic"
+                      label="Age"
+                      variant="outlined"
+                      name="age"
+                      value={values.age}
+                      onChange={handleChange}
+                      style={{
+                        margin: "0 0 1rem 0",
+                      }}
+                      error={errors.age && touched.age}
+                      inputProps={{ maxLength: 3 }}
+                    />
 
-                <SubmitWrapper>
-                  {this.props.profile === "/profile" ? (
+                    <Field
+                      id="outlined-basic"
+                      name="email"
+                      variant="outlined"
+                      label="Email"
+                      value={values.email}
+                      disabled={
+                        this.props.profile === "/profile" ? true : false
+                      }
+                      onChange={handleChange}
+                      style={{
+                        margin: "0 0 1rem 0",
+                      }}
+                      error={errors.email && touched.email}
+                    />
+                  </FirstRow>
+                  <Field
+                    id="outlined-textarea"
+                    label="Phone"
+                    multiline
+                    variant="outlined"
+                    name="phone"
+                    value={values.phone}
+                    onChange={handleChange}
+                    style={{
+                      width: "100%",
+                      boxSizing: "border-box",
+                      margin: "1rem 0",
+                    }}
+                    inputProps={{ maxLength: 10 }}
+                    error={errors.phone && touched.phone}
+                  />
+                  <Field
+                    id="outlined-textarea"
+                    label="Address"
+                    multiline
+                    variant="outlined"
+                    name="address"
+                    value={values.address}
+                    onChange={handleChange}
+                    style={{
+                      width: "100%",
+                      boxSizing: "border-box",
+                      margin: "1rem 0",
+                    }}
+                    error={errors.address && touched.address}
+                  />
+                  {this.props.profile !== "/profile" && (
                     <>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        disabled={this.state.loader}
-                      >
-                        {this.state.loader ? `....` : `SAVE`}
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.logoutHandler()}
-                      >
-                        LOGOUT
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        disabled={this.state.loader}
-                      >
-                        {this.state.loader ? `....` : `SIGN UP`}
-                      </Button>
+                      <Field
+                        id="outlined-basic"
+                        name="password"
+                        variant="outlined"
+                        label="password"
+                        value={values.password}
+                        onChange={handleChange}
+                        style={{
+                          width: "100%",
+                          boxSizing: "border-box",
+                          margin: "1rem 0",
+                        }}
+                        error={errors.password && touched.password}
+                      />
 
-                      <span>
-                        Already have an account?{" "}
-                        <span onClick={() => this.props.history.push("/login")}>
-                          Log In
-                        </span>
-                      </span>
+                      <ErrorMessage name="password" />
                     </>
                   )}
-                </SubmitWrapper>
-              </form>
-            )}
-          </Formik>
-        </Container>
-      </Wrapper>
+
+                  <SubmitWrapper>
+                    {this.props.profile === "/profile" ? (
+                      <>
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          color="primary"
+                          disabled={this.state.loader}
+                        >
+                          {this.state.loader ? (
+                            <>
+                              <CircularProgress size={24} />
+                            </>
+                          ) : (
+                            `SAVE`
+                          )}
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          color="primary"
+                          disabled={this.state.loader}
+                        >
+                          {this.state.loader ? (
+                            <CircularProgress size={24} />
+                          ) : (
+                            `SIGN UP`
+                          )}
+                        </Button>
+
+                        <span>
+                          Already have an account?{" "}
+                          <span
+                            onClick={() => this.props.history.push("/login")}
+                          >
+                            Log In
+                          </span>
+                        </span>
+                      </>
+                    )}
+                  </SubmitWrapper>
+                </form>
+              )}
+            </Formik>
+          </Container>
+        </Wrapper>
+      </>
     );
   }
 }

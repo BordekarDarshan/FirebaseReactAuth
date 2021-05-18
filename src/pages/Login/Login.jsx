@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { Button } from "@material-ui/core";
+import { Button, CircularProgress } from "@material-ui/core";
 import { Field, Wrapper, SubmitWrapper } from "../SignUp/Signup.style";
 import { Container } from "./Login.style";
 import { withRouter } from "react-router";
@@ -28,6 +28,10 @@ export class Login extends Component {
         if (this.props.loginData) {
           this.props.history.push("/profile");
         }
+      })
+      .catch((error) => {
+        console.log(error);
+        this.setState({ loader: false });
       });
   };
   render() {
@@ -85,7 +89,13 @@ export class Login extends Component {
                     color="primary"
                     disabled={this.state.loader}
                   >
-                    {this.state.loader ? `....` : `SIGN IN`}
+                    {this.state.loader ? (
+                      <>
+                        <CircularProgress size={24} />
+                      </>
+                    ) : (
+                      `SIGN IN`
+                    )}
                   </Button>
                   <span>
                     Create new account?{" "}
